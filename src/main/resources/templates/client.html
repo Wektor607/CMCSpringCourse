@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <title>Страница клиента</title>
+        <style>
+            body{
+                -webkit-background-size: cover;
+                background-size: cover;
+                background-attachment: fixed;
+                font-family: sans-serif;
+            }
+
+            .forma{
+                position: absolute;
+                top: 17%;
+                left: 60%;
+                bottom: 60%;
+                transform: translate(-50%,-50%);
+                width: 900px;
+            }
+            .form {
+                position: absolute;
+                top: 30%;
+                left: 15%;
+                transform: translate(-50%,-50%);
+            }
+
+            .form h1 {
+                margin: 30px 100px;
+                padding: 0;
+                text-align: center;
+                color: #fff;
+                font-size: 30px;
+                text-transform: uppercase;
+            }
+
+            .forma form {
+                display: flex;
+                flex-direction: row;
+            }
+
+            .forma label, input {
+                display: block;
+            }
+        </style>
+    </head>
+    <body class="p-3 mb-2 bg-light text-dark">
+    <div id="client_page"></div>
+        <script type="text/babel" >
+
+            const PRODUCT_REST_API_URL = 'http://localhost:8080/table';
+
+            const e = React.createElement;
+
+            class ClientComponent extends React.Component
+            {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        product_name: '',
+                        amount: 0,
+                        products: []
+                    };
+                }
+
+                componentDidMount() {
+                    axios.get(PRODUCT_REST_API_URL).then((response) => {
+                        this.setState({products: response.data})
+                    });
+                }
+
+                handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+                    this.setState({[event.currentTarget.name]: event.currentTarget.value});
+                }
+
+                render()
+                {
+                    return(
+                        <div>
+                            <div className="form">
+                                <div className="bg-info p-2 text-dark text-center bg-opacity-25 rounded">
+                                    <h2>Покупка товара</h2>
+                                    <form method="post" action="/client">
+                                        <div className="mb-3">
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                id="product_name"
+                                                name="product_name"
+                                                placeholder="Введите название продукта"
+                                                value={this.state.product_name}
+                                                onChange={this.handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="mb-3">
+                                            <input
+                                                type="number"
+                                                className="form-control"
+                                                id="amount"
+                                                name="amount"
+                                                placeholder="Введите количество продукта"
+                                                value={this.state.amount}
+                                                onChange={this.handleInputChange}
+                                                required
+                                            />
+                                        </div>
+                                        <input type="submit" className="btn btn-primary" value="Получить"/>
+                                    </form>
+                                    <br/>
+                                    <form method="post" action="/logout">
+                                        <input type="submit" className="btn btn-primary" value="Выйти из аккаунта"/>
+                                    </form>
+                                    <br/>
+                                    <div th:if="${resp} == true">
+                                        <div className="alert alert-success">
+                                            <span>Товара получен!</span>
+                                        </div>
+                                    </div>
+                                    <div th:if="${resp} == false">
+                                        <div className="alert alert-danger">
+                                            <p><span>Товара нет в наличии</span></p>
+                                            <span>или недостаточно на складе!</span>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                </div>
+                            </div>
+                            <div className="forma">
+                                <div className="bg-info p-2 text-dark bg-opacity-25 rounded">
+                                    <table className="table table-bordered text-center border-dark">
+                                        <thead className="thead-dark">
+                                            <tr>
+                                                <td scope="col">Название товара</td>
+                                                <td scope="col">Количество товара на складе</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {
+                                            this.state.products.map(
+                                                product =>
+                                                    <tr key = {product.id}>
+                                                        <th scope="row">{product.name}</th>
+                                                        <td>{product.count}</td>
+                                                    </tr>
+                                            )
+                                        }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+            const domContainer = document.querySelector('#client_page');
+            const root = ReactDOM.createRoot(domContainer);
+            root.render(e(ClientComponent));
+        </script>
+    </body>
+</html>

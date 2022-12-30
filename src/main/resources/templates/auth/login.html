@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Страница авторизации</title>
+        <meta charset="UTF-8" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+        <style>
+            body{
+                -webkit-background-size: cover;
+                background-size: cover;
+                background-attachment: fixed;
+                font-family: sans-serif;
+            }
+
+            .form {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+            }
+
+            .form h2 {
+                margin: 30px 100px;
+                padding: 0;
+                text-align: center;
+                color: black;
+                font-size: 30px;
+                text-transform: uppercase;
+            }
+        </style>
+    </head>
+    <body class="p-3 mb-2 bg-light text-dark">
+        <div id="authorize_page"></div>
+        <script type="text/babel" >
+            const e = React.createElement;
+
+            class AuthorizationComponent extends React.Component
+            {
+                constructor(props) {
+                    super(props);
+                    this.state = {
+                        username: '',
+                        password: ''
+                    };
+                }
+
+                handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+                    this.setState({[event.currentTarget.name]: event.currentTarget.value});
+                }
+
+                render()
+                {
+                    return(
+                        <div className = "form bg-info p-3 text-dark bg-opacity-25 rounded">
+                            <h2 className="text-center">Авторизация</h2>
+                            <form method="post" action="/process_login">
+                                <div className="form-group mb-3">
+                                    <label className="h5 text-start">Логин</label>
+                                    <br/>
+                                    <input
+                                        className="form-control text-center"
+                                        id="login"
+                                        name="username"
+                                        placeholder="Введите логин"
+                                        value={this.state.username}
+                                        onChange={this.handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group mb-3">
+                                    <label className="h5 text-start">Пароль</label>
+                                    <br/>
+                                    <input
+                                        className="form-control text-center"
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Введите пароль"
+                                        value={this.state.password}
+                                        onChange={this.handleInputChange}
+                                        required
+                                    />
+                                </div>
+                                <input type="submit" className="text-center btn btn-primary col-md-4" value="Войти"/>
+                            </form>
+                            <form className="text-center" method="get" action="/auth/login">
+                                <br/>
+                                <br/>
+                                <div th:if="${param.error}">
+                                    <div className="alert alert-danger">
+                                        <span>Неверный логин или пароль</span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    );
+                }
+            }
+
+            const domContainer = document.querySelector('#authorize_page');
+            const root = ReactDOM.createRoot(domContainer);
+            root.render(e(AuthorizationComponent));
+        </script>
+    </body>
+</html>
